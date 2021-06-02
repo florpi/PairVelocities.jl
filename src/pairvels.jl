@@ -59,7 +59,15 @@ function compute_pairwise_velocities(idxs,positions, velocities, boxsize, rbins)
                 pos_j = @view positions[j,:]
                 vel_i = @view velocities[i,:]
                 vel_j = @view velocities[j,:]
-                r, v_r = get_pairwise_velocities!(ret, dv, pos_i, pos_j, vel_i, vel_j, boxsize)
+                r, v_r = get_pairwise_velocities!(
+                    ret, 
+                    dv, 
+                    pos_i, 
+                    pos_j, 
+                    vel_i, 
+                    vel_j, 
+                    boxsize
+                )
                 if first(rbins) < r < last(rbins)
                     rbin = searchsortedfirst(rbins, r) - 1
                     mean_v_r[rbin] += v_r
@@ -93,7 +101,15 @@ function compute_cross_pairwise_velocities(idxs, left_positions, left_velocities
             pos_j = @view right_positions[j,:]
             vel_i = @view left_velocities[i,:]
             vel_j = @view right_velocities[j,:]
-            r, v_r = get_pairwise_velocities!(ret, dv, pos_i, pos_j, vel_i, vel_j, boxsize)
+            r, v_r = get_pairwise_velocities!(
+                    ret, 
+                    dv, 
+                    pos_i, 
+                    pos_j, 
+                    vel_i, 
+                    vel_j, 
+                    boxsize
+                )
             if first(rbins) < r < last(rbins)
                 rbin = searchsortedfirst(rbins, r) - 1
                 mean_v_r[rbin] += v_r
@@ -113,7 +129,15 @@ function get_cross_pairwise_velocity_distribution(
         )
     r_max = maximum(rbins)
     idxs = get_objects_in_rmax(left_positions, right_positions, r_max, boxsize)
-    return compute_cross_pairwise_velocities(idxs,left_positions, left_velocities, right_positions, right_velocities,boxsize, rbins)
+    return compute_cross_pairwise_velocities(
+                idxs,
+                left_positions, 
+                left_velocities, 
+                right_positions, 
+                right_velocities,
+                boxsize, 
+                rbins
+            )
 end
 
 
