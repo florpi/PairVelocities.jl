@@ -6,6 +6,13 @@ git-tree-sha1 = "01ca3823217f474243cc2c8e6e1d1f45956fe872"
 uuid = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 version = "1.0.0"
 
+[[CellLists]]
+git-tree-sha1 = "6f6f6d75827bdd079b090516ed001cb46bdd9e45"
+repo-rev = "master"
+repo-url = "https://github.com/jaantollander/CellLists.jl"
+uuid = "b6871879-622e-446c-84f2-629b119ba541"
+version = "0.1.0"
+
 [[Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -45,6 +52,12 @@ git-tree-sha1 = "9afd724797039125e8e2cc362098f01dab60bc3a"
 uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 version = "0.4.8"
 
+[[NeighbourLists]]
+deps = ["LinearAlgebra", "StaticArrays"]
+git-tree-sha1 = "c807689feb2127a011d8e174541c79e5a3a8acab"
+uuid = "2fcf5ba9-9ed4-57cf-b73f-ff513e316b9c"
+version = "0.5.0"
+
 [[Parsers]]
 deps = ["Dates"]
 git-tree-sha1 = "c8abc88faa3f7a3950832ac5d6e690881590d6dc"
@@ -74,9 +87,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "42378d3bab8b4f57aa1ca443821b752850592668"
+git-tree-sha1 = "da4cf579416c81994afd6322365d00916c79b8ae"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.2.2"
+version = "0.12.5"
 
 [[Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
