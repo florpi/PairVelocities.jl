@@ -1,0 +1,11 @@
+name = "PairwiseVelocities"
+uuid = "3c991dec-9c56-4f58-9859-82b65299ade1"
+authors = ["florpi <florpisoteadadejardin@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
