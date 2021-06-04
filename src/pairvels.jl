@@ -27,14 +27,22 @@ function get_pairwise_velocities!(
     end
     r = LinearAlgebra.norm(ret)
     v_r = LinearAlgebra.dot(dv,ret)/r
-    #v_t = sqrt(LinearAlgebra.dot(dv, dv) - v_r*v_r)/sqrt(2.)
-    return r, v_r
+    cos_theta = ret[3]/r
+    sin_theta = sqrt(ret[1]*ret[1]+ret[2]*ret[2])/r
+    cos_phi = ret[1]/sqrt(ret[1]*ret[1]+ret[2]*ret[2])
+    sin_phi = ret[2]/sqrt(ret[1]*ret[1]+ret[2]*ret[2])
+    if(sqrt(ret[1]*ret[1]+ret[2]*ret[2]) < 1e-10)
+        cos_phi = 1.0
+        sin_phi = 0.0
+    end
+    v_t = dv[1] * cos_theta * cos_phi + dv[2] * cos_theta * sin_phi - dv[3] * sin_theta
+    return r, v_r, v_t
 end
 
 function get_objects_in_rmax(positions, r_max, boxsize)
     tranposed_positions = permutedims(positions)
     metric = PeriodicEuclidean(boxsize)
-    balltree = BallTree(tranposed_positions, metric)
+    balltree = BallTree(tranposed_positions, metric) 
     return inrange(balltree, tranposed_positions, r_max, false)
 end
 
@@ -50,7 +58,14 @@ end
 function compute_pairwise_velocities(idxs,positions, velocities, boxsize, rbins)
     ret = zeros(Float64, size(positions)[2])
     dv = zeros(Float64, size(positions)[2])
-    mean_v_r = zeros(Float64, (length(rbins)-1))
+    first_order_r = zeros(Float64, (length(rbins)-1))
+    second_order_r = zeros(Float64, (length(rbins)-1))
+    second_order_t = zeros(Float64, (length(rbins)-1))
+    third_order_r = zeros(Float64, (length(rbins)-1))
+    third_order_cross = zeros(Float64, (length(rbins)-1))
+    fourth_order_r = zeros(Float64, (length(rbins)-1))
+    fourth_order_t = zeros(Float64, (length(rbins)-1))
+    fourth_order_cross = zeros(Float64, (length(rbins)-1))
     n_pairs = zeros(Int32, (length(rbins)-1))
     for i in 1:size(positions,1) 
         for j in idxs[i]
@@ -59,7 +74,7 @@ function compute_pairwise_velocities(idxs,positions, velocities, boxsize, rbins)
                 pos_j = @view positions[j,:]
                 vel_i = @view velocities[i,:]
                 vel_j = @view velocities[j,:]
-                r, v_r = get_pairwise_velocities!(
+                r, v_r, v_t = get_pairwise_velocities!(
                     ret, 
                     dv, 
                     pos_i, 
@@ -70,14 +85,45 @@ function compute_pairwise_velocities(idxs,positions, velocities, boxsize, rbins)
                 )
                 if first(rbins) < r < last(rbins)
                     rbin = searchsortedfirst(rbins, r) - 1
-                    mean_v_r[rbin] += v_r
+                    first_order_r[rbin] += v_r
+                    second_order_r[rbin] += v_r * v_r
+                    third_order_r[rbin] += v_r * v_r * v_r
+                    fourth_order_r[rbin] += v_r * v_r * v_r * v_r
+                    second_order_t[rbin] += v_t * v_t
+                    fourth_order_t[rbin] += v_t * v_t * v_t * v_t
+                    third_order_cross[rbin] += v_r * v_t * v_t
+                    fourth_order_cross[rbin] += v_r * v_r * v_t * v_t
                     n_pairs[rbin] += 1
                     end
             end
         end
     end
-    mean_v_r[n_pairs .> 0] = mean_v_r[n_pairs .> 0]./n_pairs[n_pairs .> 0]
-    return mean_v_r
+    mask = (n_pairs .> 0)
+    first_order_r[mask] = first_order_r[mask] ./ n_pairs[mask]
+    second_order_r[mask] = second_order_r[mask] ./ n_pairs[mask] - first_order_r[mask].^2
+    second_order_t[mask] = second_order_t[mask] ./ n_pairs[mask]
+    third_order_r[mask] = (
+                    third_order_r[mask] ./ n_pairs[mask] 
+                    - 3. * first_order_r[mask] .* second_order_r[mask] 
+                    - first_order_r[mask].^3.
+    )
+    third_order_cross[mask] = (
+                               third_order_cross[mask] ./ n_pairs[mask] 
+                               - first_order_r[mask] .* second_order_t[mask] 
+    )
+    fourth_order_r[mask] = (
+                        fourth_order_r[mask] ./ n_pairs[mask] 
+                        - 4. * first_order_r[mask] .* third_order_r[mask] 
+                        - 6. * first_order_r[mask].^2. .* second_order_r[mask] 
+                        - first_order_r[mask] .^4.
+    )
+    fourth_order_t[mask] = fourth_order_t[mask] ./ n_pairs[mask]
+    fourth_order_cross[mask] = (
+                        fourth_order_cross[mask] ./ n_pairs[mask] 
+                        - 2. * third_order_cross[mask] .* first_order_r[mask] 
+                        - first_order_r[mask].^2 .* second_order_t[mask]
+    )
+    return first_order_r, sqrt.(second_order_r), sqrt.(second_order_t), third_order_r ./ second_order_r.^(3. /2.), third_order_cross ./ second_order_r ./ second_order_t .^0.5, fourth_order_r ./ second_order_r .^ 2., fourth_order_t ./ second_order_t .^ 2., fourth_order_cross ./ second_order_r ./ second_order_t
 end
 
 function get_pairwise_velocity_distribution(
@@ -94,6 +140,7 @@ function compute_cross_pairwise_velocities(idxs, left_positions, left_velocities
     ret = zeros(Float64, size(left_positions)[2])
     dv = zeros(Float64, size(left_positions)[2])
     mean_v_r = zeros(Float64, (length(rbins)-1))
+    std_v_r = zeros(Float64, (length(rbins)-1))
     n_pairs = zeros(Int32, (length(rbins)-1))
     for i in 1:size(left_positions,1) 
         for j in idxs[i]
@@ -113,12 +160,14 @@ function compute_cross_pairwise_velocities(idxs, left_positions, left_velocities
             if first(rbins) < r < last(rbins)
                 rbin = searchsortedfirst(rbins, r) - 1
                 mean_v_r[rbin] += v_r
+                std_v_r[rbin] += v_r*v_r
                 n_pairs[rbin] += 1
                 end
         end
     end
     mean_v_r[n_pairs .> 0] = mean_v_r[n_pairs .> 0]./n_pairs[n_pairs .> 0]
-    return mean_v_r
+    std_v_r[n_pairs .> 0] = sqrt(std_v_r[n_pairs .> 0]./n_pairs[n_pairs .> 0] - mean_v_r.^2)
+    return mean_v_r, std_v_r
 end
 
 function get_cross_pairwise_velocity_distribution(
