@@ -39,6 +39,28 @@ function get_pairwise_velocities!(
     return r, v_r, v_t
 end
 
+function get_pairwise_velocities_projection(
+                    pos_pair_left,
+                    pos_pair_right,
+                    vel_pair_left,
+                    vel_pair_right,
+                    los_direction,
+                    boxsize,
+    )
+    r_perp, r_parallel = 0., 0.
+    v_los = vel_pair_left[los_direction] - vel_pair_right[los_direction]
+    for i in 1:length(pos_pair_left)
+        dpos_i = get_periodic_difference(pos_pair_left[i], pos_pair_right[i], boxsize[i])
+        if i == los_direction
+            r_parallel = dpos_i
+        else
+            r_perp += dpos_i^2
+        end
+    end
+    return sqrt(r_perp), r_parallel, v_los*sign(r_parallel)
+end
+
+
 function get_objects_in_rmax(positions, r_max, boxsize)
     tranposed_positions = permutedims(positions)
     metric = PeriodicEuclidean(boxsize)
@@ -55,7 +77,7 @@ function get_objects_in_rmax(left_positions, right_positions, r_max, boxsize)
 end
 
 
-function compute_pairwise_velocities(idxs,positions, velocities, boxsize, rbins)
+function compute_pairwise_velocities_moments(idxs,positions, velocities, boxsize, rbins)
     ret = zeros(Float64, size(positions)[2])
     dv = zeros(Float64, size(positions)[2])
     first_order_r = zeros(Float64, (length(rbins)-1))
