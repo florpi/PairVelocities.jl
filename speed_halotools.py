@@ -2,7 +2,7 @@ import numpy as np
 import time
 from halotools.mock_observables import mean_radial_velocity_vs_r
 
-n_halos = 1_000_000
+n_halos = 100_000 
 n_threads = 1
 boxsize = 250.
 rbins = [0.,2.,4.,6.,8.,10.]
