@@ -8,19 +8,19 @@ using DelimitedFiles
 function readdata(N)
   println("Reading positions...")
   file = open("/cosma/home/dp004/dc-cues1/data_enrique/pos.dat","r")
-  positions = Vector{SVector{3,Float64}}(undef,N)
+  positions = Array{Float64}(undef,3,N)
   for i in 1:N
     line = readline(file)
-    positions[i] = SVector{3,Float64}(parse.(Float64,split(line)))
+    positions[:,i] = SVector{3,Float64}(parse.(Float64,split(line)))
   end
   close(file)
 
   println("Reading velocities...")
   file = open("/cosma/home/dp004/dc-cues1/data_enrique/vel.dat","r")
-  velocities= Vector{SVector{3,Float64}}(undef,N)
+  velocities = Array{Float64}(undef,3,N)
   for i in 1:N
     line = readline(file)
-    velocities[i] = SVector{3,Float64}(parse.(Float64,split(line)))
+    velocities[:,i] = SVector{3,Float64}(parse.(Float64,split(line)))
   end
   close(file)
   return positions,velocities
@@ -33,13 +33,21 @@ rbins_c = 0.5*(rbins[2:end] + rbins[1:end-1])
 
 filename = "moments.csv"
 
-positions, velocities = readdata(200)
+positions, velocities = readdata(1000)
+
 @time moments = PairwiseVelocities.compute_pairwise_velocity_moments(
                             positions,
                             velocities,
                             rbins,
                             boxsize,
 )
+@time moments = PairwiseVelocities.compute_pairwise_velocity_moments(
+                            positions,
+                            velocities,
+                            rbins,
+                            boxsize,
+)
+
 open(filename; write=true) do f
     write(f, "# r_c v_r sigma_r sigma_t skewness_r skewness_rt kurtosis_r kurtosis_t kurtosis_rt \n")
     writedlm(f, 
