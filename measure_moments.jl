@@ -34,7 +34,6 @@ boxsize = 2000.
 r_max = 80.
 
 number_densities = readdlm("/cosma6/data/dp004/dc-cues1/DarkQuest/xi/log10density_table.dat", ' ', Float32, '\n')
-println(number_densities)
 number_density_left = number_densities[parsed_args["nd"],1]
 number_density_right = number_densities[parsed_args["nd"],2]
 println("number densities = ( ", number_density_left, " , ",number_density_right," ) ")
