@@ -33,7 +33,7 @@ rbins_c = 0.5*(rbins[2:end] + rbins[1:end-1])
 
 filename = "moments.csv"
 
-positions, velocities = readdata(1000)
+positions, velocities = readdata(8_000_000)
 
 @time moments = PairwiseVelocities.compute_pairwise_velocity_moments(
                             positions,

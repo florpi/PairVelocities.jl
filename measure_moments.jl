@@ -9,6 +9,9 @@ function parse_commandline()
     s = ArgParseSettings()
 
     @add_arg_table s begin
+        "--snapshot"
+            help = "an option with an argument"
+            arg_type = Int
         "--nd"
             help = "an option with an argument"
             arg_type = Int
@@ -26,8 +29,9 @@ end
 parsed_args = parse_commandline()
 
 DATA_DIR = "/cosma7/data/dp004/dc-cues1/DarkQuest/pairwise_velocities/"
-snapshot = 20
+snapshot = parsed_args["snapshot"] 
 boxsize = 2000.
+r_max = 80.
 
 number_densities = readdlm("/cosma6/data/dp004/dc-cues1/DarkQuest/xi/log10density_table.dat", ' ', Float32, '\n')
 println(number_densities)
@@ -35,7 +39,7 @@ number_density_left = number_densities[parsed_args["nd"],1]
 number_density_right = number_densities[parsed_args["nd"],2]
 println("number densities = ( ", number_density_left, " , ",number_density_right," ) ")
 rbins_c = readdlm("/cosma6/data/dp004/dc-cues1/DarkQuest/xi/separation.dat", '\t', Float64, '\n')
-rbins_c = rbins_c[rbins_c .< 200.]
+rbins_c = rbins_c[rbins_c .< r_max]
 
 rbins = zeros(Float64, length(rbins_c)+1)
 

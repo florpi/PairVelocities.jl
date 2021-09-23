@@ -23,15 +23,17 @@ function compute_pairwise_mean!(x,y,i,j,d2,hist,velocities, rbins,sides)
         sin_phi = 0.0
     end
     v_t = dv[1] * cos_theta * cos_phi + dv[2] * cos_theta * sin_phi - dv[3] * sin_theta
-    hist[1][ibin] += 1
-    hist[2][ibin] += v_r
-    hist[3][ibin] += v_r * v_r
-    hist[4][ibin] += v_r * v_r * v_r
-    hist[5][ibin] += v_r * v_r * v_r * v_r
-    hist[6][ibin] += v_t * v_t
-    hist[7][ibin] += v_r * v_t * v_t
-    hist[8][ibin] += v_t * v_t * v_t * v_t
-    hist[9][ibin] += v_r * v_r * v_t * v_t
+    if ibin > 0
+        hist[1][ibin] += 1
+        hist[2][ibin] += v_r
+        hist[3][ibin] += v_r * v_r
+        hist[4][ibin] += v_r * v_r * v_r
+        hist[5][ibin] += v_r * v_r * v_r * v_r
+        hist[6][ibin] += v_t * v_t
+        hist[7][ibin] += v_r * v_t * v_t
+        hist[8][ibin] += v_t * v_t * v_t * v_t
+        hist[9][ibin] += v_r * v_r * v_t * v_t
+    end
     return hist
 end
 
@@ -188,7 +190,7 @@ function compute_pairwise_velocity_moments(
     positions = reshape(reinterpret(SVector{3,Float64},positions),n)
     velocities = reshape(reinterpret(SVector{3,Float64},velocities),n)
     r_max = maximum(rbins)
-    box = Box(Lbox, r_max, lcell=2)
+    box = Box(Lbox, r_max, lcell=1)
     cl = CellList(positions,box)
     return get_pairwise_velocity_moments(
       positions,
@@ -211,7 +213,7 @@ function compute_pairwise_velocity_moments(
     positions_right = reshape(reinterpret(SVector{3,Float64},positions_right),size(positions_right)[2])
     velocities_right = reshape(reinterpret(SVector{3,Float64},velocities_right),size(velocities_right)[2])
     r_max = maximum(rbins)
-    box = Box(Lbox, r_max)
+    box = Box(Lbox, r_max, lcell=1)
     cl = CellList(positions_left, positions_right, box)
     return get_pairwise_velocity_moments(
       positions_left,
@@ -317,7 +319,7 @@ function compute_pairwise_velocity_los_pdf(
     r_max = sqrt(maximum(r_perp_bins)^2 + maximum(r_parallel_bins)^2)
     positions = reshape(reinterpret(SVector{3,Float64},positions),size(positions)[2])
     velocities = reshape(reinterpret(SVector{3,Float64},velocities),size(velocities)[2])
-    box = Box(Lbox, r_max, lcell=2)
+    box = Box(Lbox, r_max, lcell=1)
     cl = CellList(positions,box)
     return get_pairwise_velocity_los_pdf(
       positions,
@@ -344,7 +346,7 @@ function compute_pairwise_velocity_los_pdf(
     positions_right = reshape(reinterpret(SVector{3,Float64},positions_right),size(positions_right)[2])
     velocities_right = reshape(reinterpret(SVector{3,Float64},velocities_right),size(velocities_right)[2])
 
-    box = Box(Lbox, r_max, lcell=2)
+    box = Box(Lbox, r_max, lcell=1)
     cl = CellList(positions_left,positions_right,box)
     return get_pairwise_velocity_los_pdf(
       positions_left,
