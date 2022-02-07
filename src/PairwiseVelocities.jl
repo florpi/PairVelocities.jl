@@ -1,4 +1,4 @@
-module PairwiseVelocities
+module PairVelocities
 
 include("pairvels.jl")
 include("read.jl")

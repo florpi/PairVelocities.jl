@@ -1,4 +1,4 @@
-name = "PairwiseVelocities"
+name = "PairVelocities"
 uuid = "3c991dec-9c56-4f58-9859-82b65299ade1"
 authors = ["florpi <florpisoteadadejardin@gmail.com>"]
 version = "0.1.0"
