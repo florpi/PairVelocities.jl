@@ -10,7 +10,7 @@ global n_moments  = 9
 
 function compute_pairwise_mean!(x,y,i,j,d2,hist,velocities, rbins,sides)
     d = x - y
-    r = sqrt.(d2)#LinearAlgebra.norm(d)
+    r = sqrt.(d2)
     ibin = searchsortedfirst(rbins, r) - 1
     dv = velocities[i] - velocities[j]
     v_r = LinearAlgebra.dot(dv,d)/r
@@ -25,21 +25,21 @@ function compute_pairwise_mean!(x,y,i,j,d2,hist,velocities, rbins,sides)
     v_t = dv[1] * cos_theta * cos_phi + dv[2] * cos_theta * sin_phi - dv[3] * sin_theta
     if ibin > 0
         hist[1][ibin] += 1
-        hist[2][ibin] += v_r
-        hist[3][ibin] += v_r * v_r
-        hist[4][ibin] += v_r * v_r * v_r
-        hist[5][ibin] += v_r * v_r * v_r * v_r
-        hist[6][ibin] += v_t * v_t
-        hist[7][ibin] += v_r * v_t * v_t
-        hist[8][ibin] += v_t * v_t * v_t * v_t
-        hist[9][ibin] += v_r * v_r * v_t * v_t
+        hist[2][ibin] += v_r # v_r
+        hist[3][ibin] += v_r * v_r # std_r
+        hist[4][ibin] += v_r * v_r * v_r # skew_r
+        hist[5][ibin] += v_r * v_r * v_r * v_r # kur_r
+        hist[6][ibin] += v_t * v_t # std_t
+        hist[7][ibin] += v_r * v_t * v_t # skew_rt
+        hist[8][ibin] += v_t * v_t * v_t * v_t # kur_t
+        hist[9][ibin] += v_r * v_r * v_t * v_t # kur_rt
     end
     return hist
 end
 
 function compute_pairwise_mean!(x,y,i,j,d2,hist,velocities_left, velocities_right, rbins,sides)
     d = x - y
-    r = sqrt.(d2)#LinearAlgebra.norm(d)
+    r = sqrt.(d2)
     ibin = searchsortedfirst(rbins, r) - 1
     dv = velocities_left[i] - velocities_right[j]
     v_r = LinearAlgebra.dot(dv,d)/r
