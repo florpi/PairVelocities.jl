@@ -1,6 +1,6 @@
 using PyCall
 
-export read_data, read_hod, read_my_hod
+export read_data, read_hod, read_my_hod, read_abacus
 
 function read_hod(run, snapshot)
     mimicus = pyimport("mimicus")
@@ -29,4 +29,12 @@ function read_data(run, snapshot, min_mass, max_mass, boxsize)
     pos = pos[mask,:]
     vel = vel[mask,:]
     return permutedims(pos), permutedims(vel)
+end
+
+function read_abacus()
+    pypairvel = pyimport("pypairvel")
+    pos, vel, boxsize, redshift = pypairvel.read_abacus()
+    pos = permutedims(pos)
+    vel = permutedims(vel)
+    return pos, vel, boxsize, redshift
 end
