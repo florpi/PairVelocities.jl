@@ -106,7 +106,7 @@ end
 
 function reduce_hist(hist,hist_threaded)
   hist = hist_threaded[1]
-  for i in 2:Threads.nthreads()
+  for i in 2:length(hist_threaded)
     for moment in 1:n_moments
         hist[moment] .+= hist_threaded[i][moment]
     end
@@ -116,7 +116,7 @@ end
 
 function reduce_hist_los(hist,hist_threaded)
   hist = hist_threaded[1]
-  for i in 2:Threads.nthreads()
+  for i in 2:length(hist_threaded)
         hist .+= hist_threaded[i]
   end
   return hist
