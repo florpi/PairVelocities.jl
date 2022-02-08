@@ -24,12 +24,13 @@ moments = PairVelocities.compute_pairwise_velocity_moments(
     rbins,
     boxsize,
 )
-println(length(moments))
-DD = moments[1][:]
-println("counts")
+DD = 2 .*moments[1][:]
+bin_volume = 4/3 * pi .* diff(rbins.^3)
+RR = N * (N-1)/boxsize^3 * bin_volume
 println(DD)
-RR = (N * (N-1)/boxsize^3 * 4/3 * pi) .* diff(rbins.^3)
+println(RR)
 xi = DD./RR .- 1.
+
 open(filename; write=true) do f
     write(f, "r_c\txi\tv_r\tsigma_r\tsigma_t\tskewness_r\tskewness_rt\tkurtosis_r\tkurtosis_t\tkurtosis_rt\n")
     writedlm(f, 
