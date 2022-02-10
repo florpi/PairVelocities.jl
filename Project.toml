@@ -1,7 +1,7 @@
 name = "PairVelocities"
 uuid = "3c991dec-9c56-4f58-9859-82b65299ade1"
 authors = ["florpi <florpisoteadadejardin@gmail.com>"]
-version = "0.1.0"
+version = "0.1.2"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
